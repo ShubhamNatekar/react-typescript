@@ -1,2 +1,2 @@
 # react-typescript
-React and typescript tutorial
+React and typescript demo project
