@@ -1,0 +1,1 @@
+export const array = new Array(30000000).fill(0).map((_, i) => ({id:i, value :(i===29999999)}));
