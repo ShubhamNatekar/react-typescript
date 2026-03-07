@@ -5,38 +5,36 @@ import Cart from "./components/Cart";
 import "./App.css";
 
 function App() {
-  const [products, setProducts] = useState(productsData);
   const [cart, setCart] = useState([]);
+
+  const qtyById = new Map(cart.map((c) => [c.id, c.qty]));
+
+  const products = productsData.map((p) => {
+    const inCart = qtyById.get(p.id) ?? 0;
+    return { ...p, quantity: Math.max(0, p.quantity - inCart) };
+  });
+
+  const cartItems = cart
+    .map((c) => {
+      const product = productsData.find((p) => p.id === c.id);
+      if (!product) return null;
+      return { id: product.id, name: product.name, price: product.price, qty: c.qty };
+    })
+    .filter(Boolean);
 
   const addToCart = (product) => {
     if (product.quantity === 0) return;
 
-    setProducts((prev) =>
-      prev.map((p) =>
-        p.id === product.id ? { ...p, quantity: p.quantity - 1 } : p
-      )
-    );
-
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
-
       if (existing) {
-        return prev.map((item) =>
-          item.id === product.id ? { ...item, qty: item.qty + 1 } : item
-        );
+        return prev.map((item) => (item.id === product.id ? { ...item, qty: item.qty + 1 } : item));
       }
-
-      return [...prev, { ...product, qty: 1 }];
+      return [...prev, { id: product.id, qty: 1 }];
     });
   };
 
   const removeFromCart = (product) => {
-    setProducts((prev) =>
-      prev.map((p) =>
-        p.id === product.id ? { ...p, quantity: p.quantity + 1 } : p
-      )
-    );
-
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
       if (!existing) return prev;
@@ -54,7 +52,7 @@ function App() {
   return (
     <div className="container">
       <ProductList products={products} addToCart={addToCart} />
-      <Cart cart={cart} removeFromCart={removeFromCart} />
+      <Cart cart={cartItems} removeFromCart={removeFromCart} />
     </div>
   );
 }
